@@ -3,7 +3,7 @@ Repository containing all assignments of the AHEM course.
 
 ## 
 
-- [ ]  GitHub pagina maken.
+- [x]  GitHub pagina maken.
 - [ ]  R-script checken of die werkt
 - [ ]  Proberen in een interactief markdown document - met hele opdracht
 - [ ]  Cholensky decompisitie makkelijker outputten
