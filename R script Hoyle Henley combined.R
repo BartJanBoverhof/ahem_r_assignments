@@ -3,56 +3,52 @@
 # Course coordinator: Maiwenn Al, PhD
 
 
-#### IMPORTANT #### 
+########## IMPORTANT ################
 # READ ALL THE GREEN TEXT
-# MAKE SURE YOU OPENED THE AHEM COMPUTER LAB PROJECTS
-###################
+# MAKE SURE YOU OPENED THE AHEM COMPUTER LAB PROJECT
+#####################################
 
 # How to open an Rproject? #
 # You do so by clicking on the file .Rproj
-# In the right upper corner of R studio you should see AHEM
+# In the right upper corner of R studio you should now see the name of the folder in which you stored the .Rproj file
 
-
-# This document is structured in two parts:
-## In part I ## 
-## What: we demonstrate the R code functions step by step using one of the data sets 
-## Aim:  Helps you understand what the code is doing and makes is relatively easy to see all the intermediate steps
-## In part II ##
-## What: we created loops and functions of the steps presented in part I.
-## Aim:  Run the code from part I for all the data sets. 
 
 # Abbreviations 
 # OS:   overall survival
 # PFS:  progression free survival 
-# mito: Mitoxantrone
-# caba: Cabazitaxel 
+# mito: mitoxantrone
+# caba: cabazitaxel 
+# m_:   prefix for matrix
+# d_:   prefix for dataframe
+# l_:   prefix for list
+
+# This document is structured in two parts:
+
+## In part I ## 
+## What: we demonstrate the R code functions step by step using one of the data sets (overal survival mito)
+## Aim:  Help you understand what the code is doing and makes is relatively easy to see all the intermediate steps
+
+## In part II ##
+## What: we created loops and functions of the steps presented in part I.
+## Aim:  run the code from part I for all the data sets (OS mito & caba, PFS mito & caba). 
 
 
 # Part 0.0 
 # Set up R 
 # The R code to fit survival curves to the estimated pseudo individual patient level data
 rm(list = ls(all = TRUE)) # clear all the information in the environment
-#install.packages(c("survival", "readxl")) #Uncommand if you have to install
+#install.packages(c("survival", "readxl", "openxlsx")) # uncommand if you have to install
 library(survival)         # load the survival package
-library(readxl)
+library(readxl)           # load the readxl package
+library(openxlsx)         # load the openxlsx package
 
 # Load the data from Excel 
 # Make sure you have first filled the Excel with the information
-# The code na.omit removes the rows from the data that are empty
-df_OS_mito  <- na.omit(read_excel("Hoyle_and_Henley_Bahl_OS_Mito.xlsm", sheet = "R data"))
-df_OS_caba  <- na.omit(read_excel("Hoyle_and_Henley_Bahl_OS_Caba.xlsm", sheet = "R data"))
-df_PFS_mito <- na.omit(read_excel("Hoyle_and_Henley_PFS_Mito.xlsm",     sheet = "R data"))
-df_PFS_caba <- na.omit(read_excel("Hoyle_and_Henley_PFS_Caba.xlsm",     sheet = "R data"))
+# The code `na.omit` removes the rows from the data that are empty
+df_OS_mito    <- na.omit(read_excel("Hoyle_and_Henley_Bahl_OS_Mito.xlsm", sheet = "R data", range = cell_cols("A:F")))
 
+df_times_OS_mito <- na.omit(read_excel("Hoyle_and_Henley_Bahl_OS_Mito.xlsm", sheet = "R data", range = cell_cols("G:H")))
 
-
-
-
-# Alternative; save data Excel data a .txt files and load the data 
-#df_OS_mito  <- read.table("OSmito.txt",  header = TRUE)
-#df_OS_caba  <- read.table("OScaba.txt",  header = TRUE)
-#df_PFS_mito <- read.table("PFSmito.txt", header = TRUE)
-#df_PFS_caba <- read.table("PFScaba.txt", header = TRUE)
 
 # *STAR*: Extra learning about R when you like R to read the files.
 #l_data_survival <- list()
@@ -65,19 +61,12 @@ df_PFS_caba <- na.omit(read_excel("Hoyle_and_Henley_PFS_Caba.xlsm",     sheet = 
 #}
 
 
-# Create a list with the dataframes
-l_data_survival <- list("OS mito"  = df_OS_mito, 
-                        "OS caba"  = df_OS_caba, 
-                        "PFS mito" = df_PFS_mito, 
-                        "PFS caba" = df_PFS_caba)
 
 v_names_trt  <- c("Mitoxantrone", "Cabazitaxel") # vector with the treatment names 
 v_names_data <- c("OS mito", "OS caba", "PFS mito", "PFS caba") # vector for the different data sets
 v_names_dist <- c("exponential", "weibull", "lognormal", "loglogistic") # define the distribution we are evaluating
 
 
-#df_OS_mito %>%
-#  mutate(times_start = c(rep(start_time_censor, n_censors), rep(start_time_event, n_events)))
 
 ## 1.0 Part I
 # We store the data from df_OS_mito to the general data name data
@@ -87,12 +76,18 @@ data <- df_OS_mito
 attach(data)
 
 # Extract the timepoints from the dataset
+# replicate the start time for those censored for the total number of censored individuals,
+# do the same with those individuals that had an event. 
+# and make also such a vector of time points for the end time. 
 times_start <- c(rep(start_time_censor, n_censors), rep(start_time_event, n_events))
 times_end   <- c(rep(end_time_censor, n_censors),   rep(end_time_event,   n_events))
 
+# results is a vector with start time for all censored and all events,
+# and a vector with the end time for all censored individuals and those that had an event. 
+
 #  adding times for patients at risk at last time point
-times_start <- c(times_start, rep(30, 4))
-times_end   <- c(times_end, rep(10000, 4))
+times_start <- c(times_start, rep(df_times_OS_mito$n_last_time_point, df_times_OS_mito$n_patients_at_risk))
+times_end   <- c(times_end,   rep(10000, df_times_OS_mito$n_patients_at_risk))
 df_times    <- cbind(times_start, times_end) 
 head(df_times)
 
@@ -102,7 +97,7 @@ model_wei  <- survreg(Surv(times_start, times_end, type = "interval2") ~ 1, dist
 model_logn <- survreg(Surv(times_start, times_end, type = "interval2") ~ 1, dist = "lognormal")     # Lognormal function, interval censoring
 model_logl <- survreg(Surv(times_start, times_end, type = "interval2") ~ 1, dist = "loglogistic")   # Loglogistic function, interval censoring
 
- # Calculate the AIC values
+# Calculate the AIC values
 # Equation: - 2 * log L + k * edf
 # L: likelihood
 # edf: equivalent degrees of freedom
@@ -114,8 +109,11 @@ AIC_logn <- -2 * summary(model_logn)$loglik[1] + 2 * 2  #  AIC for lognormal, wh
 AIC_logl <- -2 * summary(model_logl)$loglik[1] + 2 * 2  #  AIC for log-logistic, which is a 2-parameter distribution
 
 #  Compare AIC values
-v_AIC <- c(exponential = AIC_exp, weibull = AIC_wei, 
-           lognormal = AIC_logn, loglogistic = AIC_logl) # create a vector of the values
+v_AIC <- c(exponential = AIC_exp, 
+           weibull     = AIC_wei, 
+           lognormal   = AIC_logn, 
+           loglogistic = AIC_logl) # create a vector of the values
+
 v_AIC[order(-v_AIC)]  # Print in order
 
 
@@ -130,8 +128,8 @@ log_scale_logn <- summary(model_logn)$table["Log(scale)", "Value"]   # log scale
 log_scale_logl <- summary(model_logl)$table["Log(scale)", "Value"]   # log scale parameter for loglogistic
 
 # Create vectors for the intercept and log scale parameters
-v_intercept       <- c(intercept_exp, intercept_wei, intercept_logn, intercept_logl)
-v_log_scale       <- c(NA,           log_scale_wei, log_scale_logn, log_scale_logl)
+v_intercept        <- c(intercept_exp, intercept_wei, intercept_logn, intercept_logl)
+v_log_scale        <- c(NA,            log_scale_wei, log_scale_logn, log_scale_logl)
 names(v_intercept) <- names(v_intercept)  <- v_names_dist
 
 # Create a matrix with all information
@@ -142,8 +140,8 @@ m_model_parameters_OS_mito["AIC",  ]       <- v_AIC
 m_model_parameters_OS_mito["intercept",  ] <- v_intercept
 m_model_parameters_OS_mito["log(scale)", ] <- v_log_scale
 
-round(m_model_parameters_OS_mito, 3) # Print matrix with rounded values
-
+m_model_parameters_OS_mito <- round(m_model_parameters_OS_mito, 4) # Print matrix with rounded values to 4 decimal places
+m_model_parameters_OS_mito
 
 #  For the Probabilistic Sensitivity Analysis, we need the Cholesky matrix,
 # this matrix which captures the variance and covariance of parameters
@@ -152,14 +150,13 @@ cholesky_wei  <- t(chol(summary(model_wei)$var))    #  Cholesky matrix for weibu
 cholesky_logn <- t(chol(summary(model_logn)$var))   #  Cholesky matrix for lognormal
 cholesky_logl <- t(chol(summary(model_logl)$var))   #  Cholesky matrix for loglogistic
 
-# Create a list of the cholesky matrices 
+# Create a list of the cholesky matrices, these are required for the sensitivity analysis 
 l_cholesky <- list("exponential"  = cholesky_exp,
                    "weibull"      = cholesky_wei,
                    "lognormal"    = cholesky_logn,
                    "loglogistic"  = cholesky_logl)
 
-l_cholesky
-
+l_cholesky # print the list
 
 
 # Part II : perform analysis for each of the data sets
@@ -167,11 +164,35 @@ l_cholesky
 # In this part of the code we make use of a function and loops to run the code from part I for each of the data sets
 # For this assignment we have 
 
-## 2.1 Create models for each of the distributions
-## For this we make a function: get_survival_paramters
+# Load the data from the other Excel files
+# Make sure you have first filled the Excel with the information
+# The code `na.omit` removes the rows from the data that are empty
+df_OS_caba  <- na.omit(read_excel("Hoyle_and_Henley_Bahl_OS_Caba.xlsm", sheet = "R data", range = cell_cols("A:F")))
+df_PFS_mito <- na.omit(read_excel("Hoyle_and_Henley_PFS_Mito.xlsm",     sheet = "R data", range = cell_cols("A:F")))
+df_PFS_caba <- na.omit(read_excel("Hoyle_and_Henley_PFS_Caba.xlsm",     sheet = "R data", range = cell_cols("A:F")))
 
-# The function get_survival_parameters get the values for each of the selected distributions
-get_survival_parameters <- function(data, distributions = c("exponential", "weibull", "lognormal", "loglogistic")){
+# Create a list with the dataframes
+l_data_survival <- list("OS mito"  = df_OS_mito, 
+                        "OS caba"  = df_OS_caba, 
+                        "PFS mito" = df_PFS_mito, 
+                        "PFS caba" = df_PFS_caba)
+
+# Add the time of the last time point and the number of patients at risk
+df_times_OS_caba  <- na.omit(read_excel("Hoyle_and_Henley_Bahl_OS_Caba.xlsm", sheet = "R data", range = cell_cols("G:H")))
+df_times_PFS_mito <- na.omit(read_excel("Hoyle_and_Henley_PFS_Mito.xlsm", sheet = "R data", range = cell_cols("G:H")))
+df_times_PFS_caba <- na.omit(read_excel("Hoyle_and_Henley_PFS_Caba.xlsm", sheet = "R data", range = cell_cols("G:H")))
+
+# Create a list with the data for time points
+l_times <- list("OS mito"  = df_times_OS_mito, 
+                "OS caba"  = df_times_OS_caba, 
+                "PFS mito" = df_times_PFS_mito, 
+                "PFS caba" = df_times_PFS_caba)
+
+## 2.1 Create models for each of the distributions
+## For this we make a function: get_survival_parameters
+
+# The function get_survival_parameters estimates the values for each of the selected distributions
+get_survival_parameters <- function(data_survival, data_times, distributions = c("exponential", "weibull", "lognormal", "loglogistic")){
   # Arguments
   # data: data from KM-curve using the Henley and Hoyle method
   # distributions: the distributions to explore, default is exponential and weibull
@@ -191,8 +212,8 @@ get_survival_parameters <- function(data, distributions = c("exponential", "weib
   times_end   <- c(rep(data$end_time_censor, data$n_censors),   rep(data$end_time_event,   data$n_events))
   
   #  adding times for patients at risk at last time point
-  times_start <- c(times_start, rep(30, 4))
-  times_end   <- c(times_end, rep(10000, 4))
+  times_start <- c(times_start, rep(data_times$n_last_time_point, data_times$n_patients_at_risk))
+  times_end   <- c(times_end, rep(10000, data_times$n_patients_at_risk))
   
   for(d in distributions){ # for each of the distributions 
     # estimate a model
@@ -207,31 +228,21 @@ get_survival_parameters <- function(data, distributions = c("exponential", "weib
     
       # log scale parameter 
     
-    m_cholesky  <- t(chol(summary(model)$var)) # Get the cholesky matrix 
+    m_cholesky  <- t(chol(summary(model)$var)) # Get the Cholesky matrix 
     
 
     # Create a list for each of the distributions 
-    l_results[[d]] <- list(model = model,
-                           AIC = n_AIC,
+    l_results[[d]] <- list(model     = model,
+                           AIC       = n_AIC,
                            intercept = n_intercept,
                            log_scale = n_log_scale,
-                           cholesky = m_cholesky
-    )
-    
-    
-    #v_AIC[[d]] <- n_AIC # store the AIC value in a vector, useful to compare
-    #v_intercept[[d]]  <- n_intercept
-    #v_log_scale[[d]]  <- n_log_scale
-    
-    # Add the vector for the AIC values for comparison
-    #l_results$AIC  <- v_AIC # save the vector of all the AIC values as a separate item in the li
-    
+                           cholesky  = m_cholesky)
     
     m_model_parameters["AIC",        which(d == distributions)] <- n_AIC
     m_model_parameters["intercept",  which(d == distributions)] <- n_intercept
     m_model_parameters["log(scale)", which(d == distributions)] <- n_log_scale
     
-    m_model_parameters <- round(m_model_parameters, 3) # Print matrix with rounded values
+    m_model_parameters <- round(m_model_parameters, 4) # Print matrix with rounded values to 4 decimal places
  
          
     l_results$summary <- m_model_parameters # save the vector of all the AIC values as a separate item in the list                    # useful for comparison reasons 
@@ -245,24 +256,81 @@ get_survival_parameters <- function(data, distributions = c("exponential", "weib
 # Loop over the different data sets 
 l_results_all <- list() # create a list to store the results
 for(df in names(l_data_survival)){ # for each of the names in the list - run the function
-  l_results_all[[df]] <- get_survival_parameters(data = l_data_survival[[df]])  
-  } 
+  l_results_all[[df]] <- get_survival_parameters(data_survival = l_data_survival[[df]], data_times = l_times[[df]])  
+} 
+
+# Save the list with all the results as an R data object
+saveRDS(l_results_all, file = "l_results_all.rds")
 
 
+# HOW TO USE THE LIST WITH VALUES
+# After running this code the list l_results_all contains all the information. However, printing this entire list, is hard to read.
+# You can better index the specific values you need in the list
 # In a list indexing the value goes via the $-sign
 # Examples are 
-l_results_all$`OS mito`$summary # Getting the summary information
+l_results_all$`OS mito`$summary     # Getting the summary information for the overall survival from mito
+l_results_all$`OS mito`$exponential # Print the specific survival estimates using the exponential distribution for overall survival in mito
+l_results_all$`OS mito`$exponential$intercept # or distribution specific information
+l_results_all$`OS mito`$exponential$cholesky
 
-#With this line of code you get all the AIC values
+# To fill the CEA model template this indexing each value is a lot of work. The code below helps you to organize the specific values/
+
+
+# Deterministic values 
+
+## Create a new workbook to store the results in Excel
+wb <- createWorkbook("AHEM student")
+
+## Add 4 worksheets for each of survival data
+#colors() # run this to get more colors in R
+addWorksheet(wb, "OS mito",  gridLines = FALSE, tabColour = "skyblue4")
+addWorksheet(wb, "OS caba",  gridLines = FALSE, tabColour = "skyblue")
+addWorksheet(wb, "PFS mito", gridLines = FALSE, tabColour = "coral3")
+addWorksheet(wb, "PFS caba", gridLines = FALSE, tabColour = "coral")
+
+
+# With this line of code you get all the AIC values printed, as well as stored in an wb
 for(i in v_names_data){
   print(i)
   print(l_results_all[[i]]$summary)
+  
+  writeData(wb, sheet = i, x = l_results_all[[i]]$summary,rowNames = TRUE) # save the data in the corresponding worksheet
 }
 
+saveWorkbook(wb, "output_parametric_survival_model_parameters.xlsx", overwrite = TRUE) # export the workbook to a .xlsx file
 
 
-# To find specific values
-l_results_all$`OS mito`$exponential # or distribution specific information
-l_results_all$`OS mito`$exponential$intercept # or distribution specific information
-l_results_all$`OS mito`$exponential$cholesky
+# @Bart-Jan, if you could write some text for this section that would be great! 
+# Cholesky decomposition values 
+
+# In the cabazitaxel template, the drugs and survival distributions are in reversed order. 
+# Therefore we will use the rev() function to organize the data 
+
+m_cholesky_exponential <- matrix(NA, nrow = 1, ncol = 4, 
+                                 dimnames = list("exponential", 
+                                                 rev(v_names_data)))
+
+# Create a list for the cholesky matrix
+l_cholesky_weibull <- l_cholesky_lognormal <- l_cholesky_loglogistic <- list()
+                                
+
+# Create table for the Cholesky matrices 
+for (i in v_names_data){
+  m_cholesky_exponential[, i] <- (l_results_all[[i]]$exponential$cholesky)
+  m_cholesky_exponential
+  
+  l_cholesky_weibull[[i]]     <- (l_results_all[[i]]$weibull$cholesky)
+  l_cholesky_lognormal[[i]]   <- (l_results_all[[i]]$lognormal$cholesky)
+  l_cholesky_loglogistic[[i]] <- (l_results_all[[i]]$loglogistic$cholesky)
+}
+
+# Print the values needed for the Cholesky decomposition matrix
+m_cholesky_exponential
+rev(l_cholesky_weibull)
+rev(l_cholesky_lognormal)
+rev(l_cholesky_loglogistic)
+
+
+
+
 
