@@ -14,3 +14,4 @@ Repository containing all assignments of the AHEM course.
 - [ ]  Kijken naar een nieuw filmscript (track changes)
 - [ ]  Inforgraphic met een overzicht maken.
 - [ ]  Kijken naar de fouten in de bijgevoegde slides.
+- [ ]  Over de word-file heengaan met de opdracht.
