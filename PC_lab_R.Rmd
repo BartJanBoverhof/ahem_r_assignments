@@ -12,7 +12,7 @@ output: html_document
 
 ## Important Instructions
 
-- **Read all the green text in this document carefully.**
+- **Read all the text in this document carefully.**
 - **Ensure you have opened the AHEM computer lab project.**
 
 ### How to Open an R Project
@@ -21,13 +21,13 @@ To open an R project, click on the `.Rproj` file in your project directory. In t
 
 ### Abbreviations
 
-- **OS**: Overall survival
-- **PFS**: Progression-free survival
+- **OS**:   Overall survival
+- **PFS**:  Progression-free survival
 - **mito**: Mitoxantrone
 - **caba**: Cabazitaxel
-- **m_**: Prefix for matrix
-- **d_**: Prefix for dataframe
-- **l_**: Prefix for list
+- **m_**:   Prefix for matrix
+- **d_**:   Prefix for dataframe
+- **l_**:   Prefix for list
 
 ### Document Structure
 
@@ -35,11 +35,11 @@ This document is divided into two main parts:
 
 1. **Part I**
    - **What**: Demonstrates R code functions step-by-step using one dataset (Overall Survival Mitoxantrone).
-   - **Aim**: Helps you understand the code and view all intermediate steps clearly.
+   - **Aim**:  Helps you understand the code and view all intermediate steps clearly.
 
 2. **Part II**
    - **What**: Implements loops and functions based on Part I.
-   - **Aim**: Runs the code from Part I for all datasets (OS mito & caba, PFS mito & caba).
+   - **Aim**:  Runs the code from Part I for all datasets (OS mito & caba, PFS mito & caba).
 
 ---
 
@@ -59,7 +59,7 @@ library(openxlsx)         # Load the openxlsx package
 
 # Load the data from Excel
 # Ensure the Excel file is populated with the necessary information.
-df_OS_mito    <- na.omit(read_excel("data/Hoyle_and_Henley_Bahl_OS_Mito.xlsm", sheet = "R data", range = cell_cols("A:F")))
+df_OS_mito       <- na.omit(read_excel("data/Hoyle_and_Henley_Bahl_OS_Mito.xlsm", sheet = "R data", range = cell_cols("A:F")))
 df_times_OS_mito <- na.omit(read_excel("data/Hoyle_and_Henley_Bahl_OS_Mito.xlsm", sheet = "R data", range = cell_cols("G:H")))
 ```
 

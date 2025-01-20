@@ -362,8 +362,7 @@ display: none;
 <div id="important-instructions" class="section level2">
 <h2>Important Instructions</h2>
 <ul>
-<li><strong>Read all the green text in this document
-carefully.</strong></li>
+<li><strong>Read all the text in this document carefully.</strong></li>
 <li><strong>Ensure you have opened the AHEM computer lab
 project.</strong></li>
 </ul>
@@ -419,11 +418,11 @@ cleans the data from an Excel file.</p>
 # install.packages(c(&quot;survival&quot;, &quot;readxl&quot;, &quot;openxlsx&quot;))
 library(survival)         # Load the survival package
 library(readxl)           # Load the readxl package
-library(openxlsx)         # Load the openxlsx package</code></pre>
-<pre><code>## Warning: package &#39;openxlsx&#39; was built under R version 4.3.3</code></pre>
-<pre class="r"><code># Load the data from Excel
+library(openxlsx)         # Load the openxlsx package
+
+# Load the data from Excel
 # Ensure the Excel file is populated with the necessary information.
-df_OS_mito    &lt;- na.omit(read_excel(&quot;data/Hoyle_and_Henley_Bahl_OS_Mito.xlsm&quot;, sheet = &quot;R data&quot;, range = cell_cols(&quot;A:F&quot;)))
+df_OS_mito       &lt;- na.omit(read_excel(&quot;data/Hoyle_and_Henley_Bahl_OS_Mito.xlsm&quot;, sheet = &quot;R data&quot;, range = cell_cols(&quot;A:F&quot;)))
 df_times_OS_mito &lt;- na.omit(read_excel(&quot;data/Hoyle_and_Henley_Bahl_OS_Mito.xlsm&quot;, sheet = &quot;R data&quot;, range = cell_cols(&quot;G:H&quot;)))</code></pre>
 <hr />
 </div>
@@ -753,7 +752,8 @@ v_survival_props</code></pre>
 <div id="part-iv-organizing-results-for-reporting---cholesky-matrix" class="section level2">
 <h2>Part IV Organizing Results for Reporting - Cholesky Matrix</h2>
 <p>This section prints the values needed for the Cholesky decomposition
-matrix. These can be copied and pasted into the excel file.</p>
+matrix. The values can be copied and pasted from the excel workbook
+found in the “output” folder.</p>
 <pre class="r"><code>m_cholesky_exponential &lt;- matrix(NA, nrow = 1, ncol = 4, 
                                  dimnames = list(&quot;exponential&quot;, 
                                                  rev(v_names_data)))
@@ -765,88 +765,61 @@ l_cholesky_weibull &lt;- l_cholesky_lognormal &lt;- l_cholesky_loglogistic &lt;-
 # Create table for the Cholesky matrices 
 for (i in v_names_data){
   m_cholesky_exponential[, i] &lt;- (l_results_all[[i]]$exponential$cholesky)
-  m_cholesky_exponential
-  
-  l_cholesky_weibull[[i]]     &lt;- (l_results_all[[i]]$weibull$cholesky)
+  l_cholesky_weibull[[i]]     &lt;- as.matrix((l_results_all[[i]]$weibull$cholesky))
   l_cholesky_lognormal[[i]]   &lt;- (l_results_all[[i]]$lognormal$cholesky)
   l_cholesky_loglogistic[[i]] &lt;- (l_results_all[[i]]$loglogistic$cholesky)
 }
 
-# Print the values needed for the Cholesky decomposition matrix
-m_cholesky_exponential</code></pre>
-<pre><code>##               PFS caba   PFS mito   OS caba    OS mito
-## exponential 0.05775898 0.05775854 0.0577539 0.05775635</code></pre>
-<pre class="r"><code>rev(l_cholesky_weibull)</code></pre>
-<pre><code>## $`PFS caba`
-##              (Intercept) Log(scale)
-## (Intercept)  0.034892420 0.00000000
-## Log(scale)  -0.006251345 0.04797815
-## 
-## $`PFS mito`
-##             (Intercept) Log(scale)
-## (Intercept)  0.03496329  0.0000000
-## Log(scale)  -0.00593966  0.0481066
-## 
-## $`OS caba`
-##              (Intercept) Log(scale)
-## (Intercept)  0.038446667 0.00000000
-## Log(scale)  -0.003441711 0.04838045
-## 
-## $`OS mito`
-##              (Intercept) Log(scale)
-## (Intercept)  0.036738996 0.00000000
-## Log(scale)  -0.004925029 0.04809714</code></pre>
-<pre class="r"><code>rev(l_cholesky_lognormal)</code></pre>
-<pre><code>## $`PFS caba`
-##             (Intercept) Log(scale)
-## (Intercept) 0.042438345   0.000000
-## Log(scale)  0.003491094   0.043493
-## 
-## $`PFS mito`
-##             (Intercept) Log(scale)
-## (Intercept) 0.042554969 0.00000000
-## Log(scale)  0.003650493 0.04352112
-## 
-## $`OS caba`
-##             (Intercept) Log(scale)
-## (Intercept) 0.045029188 0.00000000
-## Log(scale)  0.004988907 0.04379491
-## 
-## $`OS mito`
-##             (Intercept) Log(scale)
-## (Intercept) 0.043710349 0.00000000
-## Log(scale)  0.004197033 0.04364742</code></pre>
-<pre class="r"><code>rev(l_cholesky_loglogistic)</code></pre>
-<pre><code>## $`PFS caba`
-##              (Intercept) Log(scale)
-## (Intercept) 0.0401340568 0.00000000
-## Log(scale)  0.0001940832 0.04932763
-## 
-## $`PFS mito`
-##              (Intercept) Log(scale)
-## (Intercept) 0.0402377672 0.00000000
-## Log(scale)  0.0003221403 0.04933709
-## 
-## $`OS caba`
-##             (Intercept) Log(scale)
-## (Intercept) 0.042547006 0.00000000
-## Log(scale)  0.001898307 0.04943434
-## 
-## $`OS mito`
-##             (Intercept) Log(scale)
-## (Intercept) 0.041296345 0.00000000
-## Log(scale)  0.001016619 0.04939205</code></pre>
-<pre class="r"><code># Initialize workbook
+# Load necessary library
+library(openxlsx)
+
+# Initialize workbook
 wb_2 &lt;- createWorkbook(&quot;AHEM student&quot;)
 
-# Define sheet names and colors
-addWorksheet(wb_2, &quot;Cholesky Exponential&quot;, gridLines = FALSE, tabColour = &quot;skyblue4&quot;)
-addWorksheet(wb_2, &quot;Cholesky Weibull&quot;,     gridLines = FALSE, tabColour = &quot;coral3&quot;)
-addWorksheet(wb_2, &quot;Cholesky Lognormal&quot;,   gridLines = FALSE, tabColour = &quot;skyblue&quot;)
-addWorksheet(wb_2, &quot;Cholesky Loglogistic&quot;, gridLines = FALSE, tabColour = &quot;coral&quot;)
+# Add worksheets with colors
+addWorksheet(wb_2, &quot;exponential&quot;, gridLines = FALSE, tabColour = &quot;skyblue4&quot;)
+addWorksheet(wb_2, &quot;weibull&quot;, gridLines = FALSE, tabColour = &quot;coral3&quot;)
+addWorksheet(wb_2, &quot;lognormal&quot;, gridLines = FALSE, tabColour = &quot;skyblue&quot;)
+addWorksheet(wb_2, &quot;loglogistic&quot;, gridLines = FALSE, tabColour = &quot;coral&quot;)
+
+# Write m_cholesky_exponential directly
+writeData(wb_2, sheet = &quot;exponential&quot;, x = m_cholesky_exponential, rowNames = TRUE)
+
+# Define the fixed order
+fixed_order &lt;- c(&quot;PFS caba&quot;, &quot;PFS mito&quot;, &quot;OS caba&quot;, &quot;OS mito&quot;)
+
+# Write l_cholesky_weibull in the fixed order
+startRow &lt;- 1
+for (name in fixed_order) {
+  if (name %in% names(l_cholesky_weibull)) {
+    writeData(wb_2, sheet = &quot;weibull&quot;, x = paste(&quot;Model:&quot;, name), startRow = startRow, startCol = 1)
+    writeData(wb_2, sheet = &quot;weibull&quot;, x = l_cholesky_weibull[[name]], startRow = startRow + 1, rowNames = TRUE)
+    startRow &lt;- startRow + nrow(l_cholesky_weibull[[name]]) + 3
+  }
+}
+
+# Write l_cholesky_lognormal in the fixed order
+startRow &lt;- 1
+for (name in fixed_order) {
+  if (name %in% names(l_cholesky_lognormal)) {
+    writeData(wb_2, sheet = &quot;lognormal&quot;, x = paste(&quot;Model:&quot;, name), startRow = startRow, startCol = 1)
+    writeData(wb_2, sheet = &quot;lognormal&quot;, x = l_cholesky_lognormal[[name]], startRow = startRow + 1, rowNames = TRUE)
+    startRow &lt;- startRow + nrow(l_cholesky_lognormal[[name]]) + 3
+  }
+}
+
+# Write l_cholesky_loglogistic in the fixed order
+startRow &lt;- 1
+for (name in fixed_order) {
+  if (name %in% names(l_cholesky_loglogistic)) {
+    writeData(wb_2, sheet = &quot;loglogistic&quot;, x = paste(&quot;Model:&quot;, name), startRow = startRow, startCol = 1)
+    writeData(wb_2, sheet = &quot;loglogistic&quot;, x = l_cholesky_loglogistic[[name]], startRow = startRow + 1, rowNames = TRUE)
+    startRow &lt;- startRow + nrow(l_cholesky_loglogistic[[name]]) + 3
+  }
+}
 
 # Save the workbook
-saveWorkbook(wb, &quot;output/output_parametric_survival_model_parameters.xlsx&quot;, overwrite = TRUE)</code></pre>
+saveWorkbook(wb_2, &quot;output/output_cholensky.xlsx&quot;, overwrite = TRUE)</code></pre>
 </div>
 </div>
 
