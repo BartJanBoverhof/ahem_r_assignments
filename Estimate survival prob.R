@@ -26,7 +26,7 @@ exponential_survival <- function(t, intercept) {
 }
 
 # Calculation for exponential distribution
-intercept_exp      <- l_OS_mito$exponential$intercept
+intercept_exp <- l_OS_mito$exponential$intercept
 p_survival_exp <- exponential_survival(t, intercept_exp)
 cat("Survival probability (Exponential) at: ", round(52/t), "weeks :", p_survival_exp, "\n")
 

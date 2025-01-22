@@ -369,7 +369,7 @@ cat("Survival probability (Exponential) at: ", round(52/t), "weeks :", p_surviva
 ### lognormal ### 
 #p_survival_lognormal
 
-### loglogistic ### 
+### Exponential ### 
 #p_survival_loglogistic
 
 
