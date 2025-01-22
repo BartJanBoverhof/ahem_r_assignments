@@ -312,16 +312,81 @@ saveWorkbook(wb, "output/output_parametric_survival_model_parameters.xlsx", over
 
 ### Description
 
-This section calculates survival probabilities at a specified time point (16 weeks) using parametric distributions, based on results for Overall Survival (OS) with Mitoxantrone (OS Mito). 
+This section calculates survival probabilities at a specified time point (15 weeks) using parametric distributions, based on results for Overall Survival (OS) with Mitoxantrone (Mito). 
 
-You can use R as your calculator and write the equations to estimate the survival probability 
+You can use R as your calculator, by simply write the equation you like it to do for you. 
+
+Alternative, you can write a function that help you to perform the calculations. These function make use of the parameters for time, the intercept and the scale of the fitted distribution. You have to give the function the right input parameters to estimate the survival probability at that specific time point. 
+
+We have given you one example. 
+
+Now it is your turn to do the rest of the calculations. You can do so by writing an equation for the other distributions (weibull, lognormal and loglogistic), or you simply write the equations and let R do the math.
 
 ```{r parametric_formulas}
-#source("Estimate survival prob.R")
+# Ignore this code for now, used for the solutions
+# source("Estimate survival prob.R")
+
+# Extract the results for OS Mito
+l_OS_mito <- l_results_all$`OS mito`
+
+t_weeks <- 15           # number of weeks
+t <- (t_weeks/ 52) * 12 # time in months
+cat(t_weeks, "weeks is the same as", round(t, 3), "months", "\n")
+
+
+t_weeks <- 15           # number of weeks
+t <- (t_weeks/ 52) * 12 # time in months
+cat(t_weeks, "weeks is the same as", round(t, 3), "months", "\n")
+
+### Exponential ### 
+# Function to calculate survival probability using the Exponential distribution
+exponential_survival <- function(t, intercept) {
+  # t: time point in months at which the survival probability is estimated
+  # intercept: estimate of the intercept for the survival curve (from model fit)
+  
+  # Calculate lambda (scale parameter) based on the intercept value.
+  # Here, lambda is the exponential of the negative of the intercept.
+  lambda <- exp(-intercept)  # Scale parameter for the Exponential distribution
+  
+  # Calculate the survival probability at time t using the Exponential survival function.
+  S_t <- exp(-t * lambda)
+  
+  return(S_t)   # Return the calculated survival probability at time t
+}
+
+# Calculation for exponential distribution
+intercept_exp   <- l_OS_mito$exponential$intercept
+p_survival_exp  <- exponential_survival(t, intercept_exp)
+
+cat("Survival probability (Exponential) at: ", round(52/t), "weeks :", p_survival_exp, "\n")
+
+
+# YOUR TURN ##
+
+### weibull ### 
+#p_survival_weibull
+
+### lognormal ### 
+#p_survival_lognormal
+
+### loglogistic ### 
+#p_survival_loglogistic
+
+
+
+## Summary ##
+
+# Combine and display results
+#v_survival_props <- round(c(p_survival_exp, p_survival_weibull, p_survival_lognormal, p_survival_loglogistic), 4)
+#names(v_survival_props) <- c("exponential", "weibull", "lognormal", "loglogistic")
+#round(v_survival_props, 3) * 100
+
 
 ```
 
----
+
+
+
 
 
 ## Part IV Organizing Results for Reporting - Cholesky Matrix
