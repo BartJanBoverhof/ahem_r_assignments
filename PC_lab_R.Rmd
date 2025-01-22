@@ -1,12 +1,13 @@
 ---
-title: "Advanced Health Economic Modeling"
+title: "PC Lab for Advanced Health Economic Modeling"
 author: "Erasmus University Rotterdam"
 output: html_document
 ---
 
 # Advanced Health Economic Modeling
 
-**Course Coordinator**: Maiwenn Al, PhD
+**Course Coordinators**: Maiwenn Al, Eline Krijkamp and Venetia Qendri
+**Assignments development:** In collaboration with Bart-Jan Boverhof
 
 ---
 
@@ -39,7 +40,7 @@ This document is divided into two main parts:
 
 2. **Part II**
    - **What**: Implements loops and functions based on Part I.
-   - **Aim**:  Runs the code from Part I for all datasets (OS mito & caba, PFS mito & caba).
+   - **Aim**:  Runs the code from Part I for all datasets (PFS mito & caba, OS mito & caba).
 
 ---
 
@@ -73,10 +74,10 @@ This section stores the `df_OS_mito` dataframe into a general variable `data` an
 
 ```{r attach_data}
 data <- df_OS_mito
-attach(data)
+attach(data) # You can ignore the warning about "masked objects" 
 
-v_names_trt  <- c("Mitoxantrone", "Cabazitaxel") # vector with the treatment names 
-v_names_data <- c("OS mito", "OS caba", "PFS mito", "PFS caba") # vector for the different data sets
+v_names_trt  <- c("Cabazitaxel", "Mitoxantrone") # vector with the treatment names 
+v_names_data <- c("PFS caba","PFS mito", "OS caba", "OS mito") # vector for the different data sets
 v_names_dist <- c("exponential", "weibull", "lognormal", "loglogistic") # define the distribution we are evaluating
 ```
 
@@ -173,7 +174,7 @@ l_cholesky
 
 ---
 
-# Part II: Performing Analysis for Each Dataset
+## Part II: Performing Analysis for Each Dataset
 
 This section automates the analysis from Part I using functions and loops, applying it to multiple datasets.
 
@@ -189,26 +190,30 @@ This section loads data from multiple Excel files, ensuring empty rows are remov
 library(readxl)           # Load the readxl package
 
 # Load the data from the Excel files
-df_OS_caba  <- na.omit(read_excel("data/Hoyle_and_Henley_Bahl_OS_Caba.xlsm", sheet = "R data", range = cell_cols("A:F")))
-df_PFS_mito <- na.omit(read_excel("data/Hoyle_and_Henley_PFS_Mito.xlsm",     sheet = "R data", range = cell_cols("A:F")))
 df_PFS_caba <- na.omit(read_excel("data/Hoyle_and_Henley_PFS_Caba.xlsm",     sheet = "R data", range = cell_cols("A:F")))
+df_PFS_mito <- na.omit(read_excel("data/Hoyle_and_Henley_PFS_Mito.xlsm",     sheet = "R data", range = cell_cols("A:F")))
+df_OS_caba  <- na.omit(read_excel("data/Hoyle_and_Henley_Bahl_OS_Caba.xlsm", sheet = "R data", range = cell_cols("A:F")))
+
 
 # Create a list with the dataframes
-l_data_survival <- list("OS mito"  = df_OS_mito, 
-                        "OS caba"  = df_OS_caba, 
+l_data_survival <- list("PFS caba" = df_PFS_caba, 
                         "PFS mito" = df_PFS_mito, 
-                        "PFS caba" = df_PFS_caba)
+                        "OS caba"  = df_OS_caba, 
+                        "OS mito"  = df_OS_mito)
+
 
 # Add the time of the last time point and the number of patients at risk
+df_times_PFS_caba <- na.omit(read_excel("data/Hoyle_and_Henley_PFS_Caba.xlsm",     sheet = "R data", range = cell_cols("G:H")))
+df_times_PFS_mito <- na.omit(read_excel("data/Hoyle_and_Henley_PFS_Mito.xlsm",     sheet = "R data", range = cell_cols("G:H")))
 df_times_OS_caba  <- na.omit(read_excel("data/Hoyle_and_Henley_Bahl_OS_Caba.xlsm", sheet = "R data", range = cell_cols("G:H")))
-df_times_PFS_mito <- na.omit(read_excel("data/Hoyle_and_Henley_PFS_Mito.xlsm", sheet = "R data", range = cell_cols("G:H")))
-df_times_PFS_caba <- na.omit(read_excel("data/Hoyle_and_Henley_PFS_Caba.xlsm", sheet = "R data", range = cell_cols("G:H")))
+
 
 # Create a list with the data for time points
-l_times <- list("OS mito"  = df_times_OS_mito, 
-                "OS caba"  = df_times_OS_caba, 
-                "PFS mito" = df_times_PFS_mito, 
-                "PFS caba" = df_times_PFS_caba)
+l_times <- list("PFS caba" = df_times_PFS_caba,
+                "PFS mito" = df_times_PFS_mito,
+                "OS caba"  = df_times_OS_caba,
+                "OS mito"  = df_times_OS_mito)
+
 ```
 
 ---
@@ -287,10 +292,10 @@ This section demonstrates how to extract specific results from the list and orga
 ```{r organize_results}
 library(openxlsx)
 wb <- createWorkbook("AHEM student")
-addWorksheet(wb, "OS mito",  gridLines = FALSE, tabColour = "skyblue4")
-addWorksheet(wb, "OS caba",  gridLines = FALSE, tabColour = "skyblue")
-addWorksheet(wb, "PFS mito", gridLines = FALSE, tabColour = "coral3")
 addWorksheet(wb, "PFS caba", gridLines = FALSE, tabColour = "coral")
+addWorksheet(wb, "PFS mito", gridLines = FALSE, tabColour = "coral3")
+addWorksheet(wb, "OS caba",  gridLines = FALSE, tabColour = "skyblue")
+addWorksheet(wb, "OS mito",  gridLines = FALSE, tabColour = "skyblue4")
 
 for (i in v_names_data) {
   print(i)
@@ -307,47 +312,20 @@ saveWorkbook(wb, "output/output_parametric_survival_model_parameters.xlsx", over
 
 ### Description
 
-This section calculates survival probabilities at a specified time point (16 weeks) using parametric distributions, based on results for Overall Survival (OS) with Mitoxantrone (OS Mito).
+This section calculates survival probabilities at a specified time point (16 weeks) using parametric distributions, based on results for Overall Survival (OS) with Mitoxantrone (OS Mito). 
+
+You can use R as your calculator and write the equations to estimate the survival probability 
 
 ```{r parametric_formulas}
-library(ztable)
+#source("Estimate survival prob.R")
 
-# Extract the results for OS Mito
-l_OS_mito <- l_results_all$`OS mito`
-
-# Exponential
-lambda <- exp(-l_OS_mito$exponential$intercept)
-t <- (16 / 52) * 12
-p_S_16_exp <- exp(-lambda * t)
-
-# Weibull
-scale <- exp(l_OS_mito$weibull$log_scale)
-gamma <- 1 / scale
-lambda <- exp(-l_OS_mito$weibull$intercept / scale)
-p_S_16_weibull <- exp(-lambda * t ^ gamma)
-
-# Lognormal
-lambda <- l_OS_mito$lognormal$intercept
-gamma <- exp(l_OS_mito$lognormal$log_scale)
-p_S_16_logn <- 1 - 0.07636  # Pre-calculated value from Z-table
-
-# Loglogistic
-scale <- exp(l_OS_mito$loglogistic$log_scale)
-gamma <- 1 / scale
-lambda <- exp(-l_OS_mito$loglogistic$intercept / scale)
-p_S_16_logl <- 1 / (1 + lambda * t ^ gamma)
-
-# Combine and display results
-v_survival_props <- round(c(p_S_16_exp, p_S_16_weibull, p_S_16_logn, p_S_16_logl), 4)
-names(v_survival_props) <- c("exponential", "weibull", "lognormal", "loglogistic")
-v_survival_props
 ```
 
 ---
 
 
 ## Part IV Organizing Results for Reporting - Cholesky Matrix
-This section prints the values needed for the Cholesky decomposition matrix. The values can be copied and pasted from the excel workbook found in the "output" folder.
+This section prints the values needed for the Cholesky decomposition matrix. The values can be copied and pasted from the Excel workbook found in the "output" folder.
 
 ```{r}
 m_cholesky_exponential <- matrix(NA, nrow = 1, ncol = 4, 
@@ -374,8 +352,8 @@ wb_2 <- createWorkbook("AHEM student")
 
 # Add worksheets with colors
 addWorksheet(wb_2, "exponential", gridLines = FALSE, tabColour = "skyblue4")
-addWorksheet(wb_2, "weibull", gridLines = FALSE, tabColour = "coral3")
-addWorksheet(wb_2, "lognormal", gridLines = FALSE, tabColour = "skyblue")
+addWorksheet(wb_2, "weibull",     gridLines = FALSE, tabColour = "coral3")
+addWorksheet(wb_2, "lognormal",   gridLines = FALSE, tabColour = "skyblue")
 addWorksheet(wb_2, "loglogistic", gridLines = FALSE, tabColour = "coral")
 
 # Write m_cholesky_exponential directly
