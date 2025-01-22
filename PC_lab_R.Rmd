@@ -324,7 +324,7 @@ Now it is your turn to do the rest of the calculations. You can do so by writing
 
 ```{r parametric_formulas}
 # Ignore this code for now, used for the solutions
-# source("Estimate survival prob.R")
+# source("solution_estimate survival prob.R")
 
 # Extract the results for OS Mito
 l_OS_mito <- l_results_all$`OS mito`
