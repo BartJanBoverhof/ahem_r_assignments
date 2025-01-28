@@ -62,6 +62,7 @@ library(openxlsx)         # Load the openxlsx package
 # Ensure the Excel file is populated with the necessary information.
 df_OS_mito       <- na.omit(read_excel("data/Hoyle_and_Henley_Bahl_OS_Mito.xlsm", sheet = "R data", range = cell_cols("A:F")))
 df_times_OS_mito <- na.omit(read_excel("data/Hoyle_and_Henley_Bahl_OS_Mito.xlsm", sheet = "R data", range = cell_cols("G:H")))
+
 ```
 
 ---
@@ -121,8 +122,9 @@ v_AIC <- c(exponential = AIC_exp,
            weibull     = AIC_wei, 
            lognormal   = AIC_logn, 
            loglogistic = AIC_logl)
+v_AIC # print the AIC values
 
-v_AIC[order(-v_AIC)]
+v_AIC[order(-v_AIC)] # print the values in order
 ```
 
 ### Step 1.4: Extracting Parameters and Creating Matrices
@@ -233,8 +235,8 @@ get_survival_parameters <- function(data_survival, data_times, distributions = c
                                dimnames = list(c("AIC", "intercept", "log(scale)"),
                                                distributions))
 
-  times_start <- c(rep(data$start_time_censor, data$n_censors), rep(data$start_time_event, data$n_events))
-  times_end   <- c(rep(data$end_time_censor, data$n_censors),   rep(data$end_time_event,   data$n_events))
+  times_start <- c(rep(data_survival$start_time_censor, data_survival$n_censors), rep(data_survival$start_time_event, data_survival$n_events))
+  times_end   <- c(rep(data_survival$end_time_censor, data_survival$n_censors),   rep(data_survival$end_time_event,   data_survival$n_events))
 
   times_start <- c(times_start, rep(data_times$n_last_time_point, data_times$n_patients_at_risk))
   times_end   <- c(times_end, rep(10000, data_times$n_patients_at_risk))
