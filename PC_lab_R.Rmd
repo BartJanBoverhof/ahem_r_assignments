@@ -423,11 +423,11 @@ addWorksheet(wb_2, "weibull",     gridLines = FALSE, tabColour = "coral3")
 addWorksheet(wb_2, "lognormal",   gridLines = FALSE, tabColour = "skyblue")
 addWorksheet(wb_2, "loglogistic", gridLines = FALSE, tabColour = "coral")
 
-# Write m_cholesky_exponential directly
-writeData(wb_2, sheet = "exponential", x = m_cholesky_exponential, rowNames = TRUE)
-
 # Define the fixed order
 fixed_order <- c("PFS caba", "PFS mito", "OS caba", "OS mito")
+# Write m_cholesky_exponential directly
+writeData(wb_2, sheet = "exponential", x =  m_cholesky_exponential, rowNames = TRUE)
+
 
 # Write l_cholesky_weibull in the fixed order
 startRow <- 1
