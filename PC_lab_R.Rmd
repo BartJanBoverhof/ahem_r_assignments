@@ -57,7 +57,6 @@ rm(list = ls(all = TRUE)) # Clear all information in the environment
 library(survival)         # Load the survival package
 library(readxl)           # Load the readxl package
 library(openxlsx)         # Load the openxlsx package
-
 # Load the data from Excel
 # Ensure the Excel file is populated with the necessary information.
 df_OS_mito       <- na.omit(read_excel("data/Hoyle_and_Henley_Bahl_OS_Mito.xlsm", sheet = "R data", range = cell_cols("A:F")))
@@ -78,7 +77,7 @@ data <- df_OS_mito
 attach(data) # You can ignore the warning about "masked objects" 
 
 v_names_trt  <- c("Cabazitaxel", "Mitoxantrone") # vector with the treatment names 
-v_names_data <- c("PFS caba","PFS mito", "OS caba", "OS mito") # vector for the different data sets
+v_names_data <- c("PFS_caba","PFS_mito", "OS_caba", "OS_mito") # vector for the different data sets
 v_names_dist <- c("exponential", "weibull", "lognormal", "loglogistic") # define the distribution we are evaluating
 ```
 
@@ -189,7 +188,6 @@ This section automates the analysis from Part I using functions and loops, apply
 This section loads data from multiple Excel files, ensuring empty rows are removed using `na.omit`. It also organizes the datasets and time points into lists for streamlined analysis.
 
 ```{r load_data}
-library(readxl)           # Load the readxl package
 
 # Load the data from the Excel files
 df_PFS_caba <- na.omit(read_excel("data/Hoyle_and_Henley_PFS_Caba.xlsm",     sheet = "R data", range = cell_cols("A:F")))
@@ -198,10 +196,10 @@ df_OS_caba  <- na.omit(read_excel("data/Hoyle_and_Henley_Bahl_OS_Caba.xlsm", she
 
 
 # Create a list with the dataframes
-l_data_survival <- list("PFS caba" = df_PFS_caba, 
-                        "PFS mito" = df_PFS_mito, 
-                        "OS caba"  = df_OS_caba, 
-                        "OS mito"  = df_OS_mito)
+l_data_survival <- list("PFS_caba" = df_PFS_caba, 
+                        "PFS_mito" = df_PFS_mito, 
+                        "OS_caba"  = df_OS_caba, 
+                        "OS_mito"  = df_OS_mito)
 
 
 # Add the time of the last time point and the number of patients at risk
@@ -211,10 +209,10 @@ df_times_OS_caba  <- na.omit(read_excel("data/Hoyle_and_Henley_Bahl_OS_Caba.xlsm
 
 
 # Create a list with the data for time points
-l_times <- list("PFS caba" = df_times_PFS_caba,
-                "PFS mito" = df_times_PFS_mito,
-                "OS caba"  = df_times_OS_caba,
-                "OS mito"  = df_times_OS_mito)
+l_times <- list("PFS_caba" = df_times_PFS_caba,
+                "PFS_mito" = df_times_PFS_mito,
+                "OS_caba"  = df_times_OS_caba,
+                "OS_mito"  = df_times_OS_mito)
 
 ```
 
@@ -283,6 +281,9 @@ for (df in names(l_data_survival)) {
 saveRDS(l_results_all, file = "output/l_results_all.rds")
 ```
 
+### Step 2.2.1: Print specific values from a list. 
+To print values from a list in R, you can simply use the `print()` function or access specific elements using the list's structure. After running the code chunk above, we have the list called `l_results_all`. To print the entire list, use `print(l_results_all)` or simply type `l_results_all` in the console. To print specific parts or event elements, use the `$` operator for named elements, like `l_results_all$PFS_caba``, or use double square brackets with the index or name, such as `print(l_results_all[[1]])` or `print(l_results_all[["PFS caba`"]])`. You can also loop through the list using `for` loops, like `for (item in l_results_all) { print(item) }`, to print each value individually.
+
 ---
 
 ## Step 2.3: Organizing Results for Reporting - Parametric Survival Models
@@ -294,10 +295,10 @@ This section demonstrates how to extract specific results from the list and orga
 ```{r organize_results}
 library(openxlsx)
 wb <- createWorkbook("AHEM student")
-addWorksheet(wb, "PFS caba", gridLines = FALSE, tabColour = "coral")
-addWorksheet(wb, "PFS mito", gridLines = FALSE, tabColour = "coral3")
-addWorksheet(wb, "OS caba",  gridLines = FALSE, tabColour = "skyblue")
-addWorksheet(wb, "OS mito",  gridLines = FALSE, tabColour = "skyblue4")
+addWorksheet(wb, "PFS_caba", gridLines = FALSE, tabColour = "coral")
+addWorksheet(wb, "PFS_mito", gridLines = FALSE, tabColour = "coral3")
+addWorksheet(wb, "OS_caba",  gridLines = FALSE, tabColour = "skyblue")
+addWorksheet(wb, "OS_mito",  gridLines = FALSE, tabColour = "skyblue4")
 
 for (i in v_names_data) {
   print(i)
@@ -329,7 +330,7 @@ Now it is your turn to do the rest of the calculations. You can do so by writing
 # source("solution_estimate survival prob.R")
 
 # Extract the results for OS Mito
-l_OS_mito <- l_results_all$`OS mito`
+l_OS_mito <- l_results_all$OS_mito
 
 t_weeks <- 15           # number of weeks
 t <- (t_weeks/ 52) * 12 # time in months
@@ -392,7 +393,7 @@ cat("Survival probability (Exponential) at: ", round(52/t), "weeks :", p_surviva
 
 
 ## Part IV Organizing Results for Reporting - Cholesky Matrix
-This section prints the values needed for the Cholesky decomposition matrix. The values can be copied and pasted from the Excel workbook found in the "output" folder.
+This section calculated the Cholesky decomposition matrix for all the survival distributions and saves it in an Excel file. The Excel workbook can be found in the "output" folder. You can use the values from there for your Cabazitaxel model. 
 
 ```{r}
 m_cholesky_exponential <- matrix(NA, nrow = 1, ncol = 4, 
@@ -424,7 +425,7 @@ addWorksheet(wb_2, "lognormal",   gridLines = FALSE, tabColour = "skyblue")
 addWorksheet(wb_2, "loglogistic", gridLines = FALSE, tabColour = "coral")
 
 # Define the fixed order
-fixed_order <- c("PFS caba", "PFS mito", "OS caba", "OS mito")
+fixed_order <- c("PFS_caba", "PFS_mito", "OS_caba", "OS_mito")
 # Write m_cholesky_exponential directly
 writeData(wb_2, sheet = "exponential", x =  m_cholesky_exponential, rowNames = TRUE)
 
