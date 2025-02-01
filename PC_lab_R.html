@@ -422,7 +422,6 @@ cleans the data from an Excel file.</p>
 library(survival)         # Load the survival package
 library(readxl)           # Load the readxl package
 library(openxlsx)         # Load the openxlsx package
-
 # Load the data from Excel
 # Ensure the Excel file is populated with the necessary information.
 df_OS_mito       &lt;- na.omit(read_excel(&quot;data/Hoyle_and_Henley_Bahl_OS_Mito.xlsm&quot;, sheet = &quot;R data&quot;, range = cell_cols(&quot;A:F&quot;)))
@@ -441,7 +440,7 @@ for easier evaluation of variables.</p>
 attach(data) # You can ignore the warning about &quot;masked objects&quot; 
 
 v_names_trt  &lt;- c(&quot;Cabazitaxel&quot;, &quot;Mitoxantrone&quot;) # vector with the treatment names 
-v_names_data &lt;- c(&quot;PFS caba&quot;,&quot;PFS mito&quot;, &quot;OS caba&quot;, &quot;OS mito&quot;) # vector for the different data sets
+v_names_data &lt;- c(&quot;PFS_caba&quot;,&quot;PFS_mito&quot;, &quot;OS_caba&quot;, &quot;OS_mito&quot;) # vector for the different data sets
 v_names_dist &lt;- c(&quot;exponential&quot;, &quot;weibull&quot;, &quot;lognormal&quot;, &quot;loglogistic&quot;) # define the distribution we are evaluating</code></pre>
 </div>
 <div id="step-1.1-extracting-time-points" class="section level3">
@@ -575,19 +574,17 @@ loops, applying it to multiple datasets.</p>
 <p>This section loads data from multiple Excel files, ensuring empty
 rows are removed using <code>na.omit</code>. It also organizes the
 datasets and time points into lists for streamlined analysis.</p>
-<pre class="r"><code>library(readxl)           # Load the readxl package
-
-# Load the data from the Excel files
+<pre class="r"><code># Load the data from the Excel files
 df_PFS_caba &lt;- na.omit(read_excel(&quot;data/Hoyle_and_Henley_PFS_Caba.xlsm&quot;,     sheet = &quot;R data&quot;, range = cell_cols(&quot;A:F&quot;)))
 df_PFS_mito &lt;- na.omit(read_excel(&quot;data/Hoyle_and_Henley_PFS_Mito.xlsm&quot;,     sheet = &quot;R data&quot;, range = cell_cols(&quot;A:F&quot;)))
 df_OS_caba  &lt;- na.omit(read_excel(&quot;data/Hoyle_and_Henley_Bahl_OS_Caba.xlsm&quot;, sheet = &quot;R data&quot;, range = cell_cols(&quot;A:F&quot;)))
 
 
 # Create a list with the dataframes
-l_data_survival &lt;- list(&quot;PFS caba&quot; = df_PFS_caba, 
-                        &quot;PFS mito&quot; = df_PFS_mito, 
-                        &quot;OS caba&quot;  = df_OS_caba, 
-                        &quot;OS mito&quot;  = df_OS_mito)
+l_data_survival &lt;- list(&quot;PFS_caba&quot; = df_PFS_caba, 
+                        &quot;PFS_mito&quot; = df_PFS_mito, 
+                        &quot;OS_caba&quot;  = df_OS_caba, 
+                        &quot;OS_mito&quot;  = df_OS_mito)
 
 
 # Add the time of the last time point and the number of patients at risk
@@ -597,10 +594,10 @@ df_times_OS_caba  &lt;- na.omit(read_excel(&quot;data/Hoyle_and_Henley_Bahl_OS_C
 
 
 # Create a list with the data for time points
-l_times &lt;- list(&quot;PFS caba&quot; = df_times_PFS_caba,
-                &quot;PFS mito&quot; = df_times_PFS_mito,
-                &quot;OS caba&quot;  = df_times_OS_caba,
-                &quot;OS mito&quot;  = df_times_OS_mito)</code></pre>
+l_times &lt;- list(&quot;PFS_caba&quot; = df_times_PFS_caba,
+                &quot;PFS_mito&quot; = df_times_PFS_mito,
+                &quot;OS_caba&quot;  = df_times_OS_caba,
+                &quot;OS_mito&quot;  = df_times_OS_mito)</code></pre>
 <hr />
 </div>
 </div>
@@ -666,6 +663,21 @@ for (df in names(l_data_survival)) {
 }
 
 saveRDS(l_results_all, file = &quot;output/l_results_all.rds&quot;)</code></pre>
+</div>
+<div id="step-2.2.1-print-specific-values-from-a-list." class="section level3">
+<h3>Step 2.2.1: Print specific values from a list.</h3>
+<p>To print values from a list in R, you can simply use the
+<code>print()</code> function or access specific elements using the
+list’s structure. After running the code chunk above, we have the list
+called <code>l_results_all</code>. To print the entire list, use
+<code>print(l_results_all)</code> or simply type
+<code>l_results_all</code> in the console. To print specific parts or
+event elements, use the <code>$</code> operator for named elements, like
+<code>l_results_all$PFS_caba``, or use double square brackets with the index or name, such as</code>print(l_results_all[[1]])<code>or</code>print(l_results_all[[“PFS
+caba<code>&quot;]])</code>. You can also loop through the list using
+<code>for</code> loops, like
+<code>for (item in l_results_all) { print(item) }</code>, to print each
+value individually.</p>
 <hr />
 </div>
 </div>
@@ -680,32 +692,32 @@ excel workbooks are stored in the output folder. Please look in this
 folder to copy and paste the results.</p>
 <pre class="r"><code>library(openxlsx)
 wb &lt;- createWorkbook(&quot;AHEM student&quot;)
-addWorksheet(wb, &quot;PFS caba&quot;, gridLines = FALSE, tabColour = &quot;coral&quot;)
-addWorksheet(wb, &quot;PFS mito&quot;, gridLines = FALSE, tabColour = &quot;coral3&quot;)
-addWorksheet(wb, &quot;OS caba&quot;,  gridLines = FALSE, tabColour = &quot;skyblue&quot;)
-addWorksheet(wb, &quot;OS mito&quot;,  gridLines = FALSE, tabColour = &quot;skyblue4&quot;)
+addWorksheet(wb, &quot;PFS_caba&quot;, gridLines = FALSE, tabColour = &quot;coral&quot;)
+addWorksheet(wb, &quot;PFS_mito&quot;, gridLines = FALSE, tabColour = &quot;coral3&quot;)
+addWorksheet(wb, &quot;OS_caba&quot;,  gridLines = FALSE, tabColour = &quot;skyblue&quot;)
+addWorksheet(wb, &quot;OS_mito&quot;,  gridLines = FALSE, tabColour = &quot;skyblue4&quot;)
 
 for (i in v_names_data) {
   print(i)
   print(l_results_all[[i]]$summary)
   writeData(wb, sheet = i, x = l_results_all[[i]]$summary, rowNames = TRUE)
 }</code></pre>
-<pre><code>## [1] &quot;PFS caba&quot;
+<pre><code>## [1] &quot;PFS_caba&quot;
 ##            exponential   weibull lognormal loglogistic
 ## AIC          1885.1071 1885.5943 1886.6016   1895.3382
 ## intercept       1.4561    1.4383    0.9282      0.9382
 ## log(scale)          NA    0.0566    0.1527     -0.3479
-## [1] &quot;PFS mito&quot;
+## [1] &quot;PFS_mito&quot;
 ##            exponential   weibull lognormal loglogistic
 ## AIC          1754.2742 1748.7375 1691.7935   1695.7627
 ## intercept       1.1368    1.0851    0.5840      0.5222
 ## log(scale)          NA    0.1132    0.0635     -0.4662
-## [1] &quot;OS caba&quot;
+## [1] &quot;OS_caba&quot;
 ##            exponential   weibull lognormal loglogistic
 ## AIC          1987.5033 1939.5375  1952.981    1938.927
 ## intercept       3.0551    3.0125     2.705       2.723
 ## log(scale)          NA   -0.4050    -0.100      -0.680
-## [1] &quot;OS mito&quot;
+## [1] &quot;OS_mito&quot;
 ##            exponential   weibull lognormal loglogistic
 ## AIC          2019.9897 1948.8256 1966.3671   1948.9386
 ## intercept       2.7684    2.7780    2.4635      2.4905
@@ -720,14 +732,25 @@ for (i in v_names_data) {
 <h3>Description</h3>
 <p>This section calculates survival probabilities at a specified time
 point (15 weeks) using parametric distributions, based on results for
-Overall Survival (OS) with Mitoxantrone (Mito).</p>
-<p>You can use R as your calculator, by simply write the equation you
-like it to do for you.</p>
-<p>Alternative, you can write a function that help you to perform the
-calculations. These function make use of the parameters for time, the
-intercept and the scale of the fitted distribution. You have to give the
-function the right input parameters to estimate the survival probability
-at that specific time point.</p>
+Overall Survival (OS) with Mitoxantrone (Mito). The Parametric Survival
+equation are provided in the assignment instructions.</p>
+<p><strong>It is your task to use these equations with the estimated
+values in this assignment</strong></p>
+<p>You can use R as your calculator, by writing the equation and you let
+R do the math. Below an example, of how you can write an equation in
+R.</p>
+<pre class="r"><code># Example of a basic equation: 
+# four + five to the power of 2 + the exponential of 10
+example_outcome &lt;- 4 + 5^2 + exp(10)
+example_outcome # Print the example outcome</code></pre>
+<pre><code>## [1] 22055.47</code></pre>
+<p>Alternative, you can write a function to do the calculations. The
+benefit of a function, is that you can repeat the calculation many times
+by just changing the input parameters.</p>
+<p>These function make use of the parameters for time, the intercept and
+the scale of the fitted distribution. You have to give the function the
+right input parameters to estimate the survival probability at that
+specific time point.</p>
 <p>We have given you one example.</p>
 <p>Now it is your turn to do the rest of the calculations. You can do so
 by writing an equation for the other distributions (weibull, lognormal
@@ -737,13 +760,9 @@ math.</p>
 # source(&quot;solution_estimate survival prob.R&quot;)
 
 # Extract the results for OS Mito
-l_OS_mito &lt;- l_results_all$`OS mito`
+l_OS_mito &lt;- l_results_all$OS_mito
 
 t_weeks &lt;- 15           # number of weeks
-t &lt;- (t_weeks/ 52) * 12 # time in months
-cat(t_weeks, &quot;weeks is the same as&quot;, round(t, 3), &quot;months&quot;, &quot;\n&quot;)</code></pre>
-<pre><code>## 15 weeks is the same as 3.462 months</code></pre>
-<pre class="r"><code>t_weeks &lt;- 15           # number of weeks
 t &lt;- (t_weeks/ 52) * 12 # time in months
 cat(t_weeks, &quot;weeks is the same as&quot;, round(t, 3), &quot;months&quot;, &quot;\n&quot;)</code></pre>
 <pre><code>## 15 weeks is the same as 3.462 months</code></pre>
@@ -792,9 +811,10 @@ cat(&quot;Survival probability (Exponential) at: &quot;, round(52/t), &quot;week
 </div>
 <div id="part-iv-organizing-results-for-reporting---cholesky-matrix" class="section level2">
 <h2>Part IV Organizing Results for Reporting - Cholesky Matrix</h2>
-<p>This section prints the values needed for the Cholesky decomposition
-matrix. The values can be copied and pasted from the Excel workbook
-found in the “output” folder.</p>
+<p>This section calculated the Cholesky decomposition matrix for all the
+survival distributions and saves it in an Excel file. The Excel workbook
+can be found in the “output” folder. You can use the values from there
+for your Cabazitaxel model.</p>
 <pre class="r"><code>m_cholesky_exponential &lt;- matrix(NA, nrow = 1, ncol = 4, 
                                  dimnames = list(&quot;exponential&quot;, 
                                                  rev(v_names_data)))
@@ -824,7 +844,7 @@ addWorksheet(wb_2, &quot;lognormal&quot;,   gridLines = FALSE, tabColour = &quot
 addWorksheet(wb_2, &quot;loglogistic&quot;, gridLines = FALSE, tabColour = &quot;coral&quot;)
 
 # Define the fixed order
-fixed_order &lt;- c(&quot;PFS caba&quot;, &quot;PFS mito&quot;, &quot;OS caba&quot;, &quot;OS mito&quot;)
+fixed_order &lt;- c(&quot;PFS_caba&quot;, &quot;PFS_mito&quot;, &quot;OS_caba&quot;, &quot;OS_mito&quot;)
 # Write m_cholesky_exponential directly
 writeData(wb_2, sheet = &quot;exponential&quot;, x =  m_cholesky_exponential, rowNames = TRUE)
 

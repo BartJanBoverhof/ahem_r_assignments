@@ -315,11 +315,23 @@ saveWorkbook(wb, "output/output_parametric_survival_model_parameters.xlsx", over
 
 ### Description
 
-This section calculates survival probabilities at a specified time point (15 weeks) using parametric distributions, based on results for Overall Survival (OS) with Mitoxantrone (Mito). 
+This section calculates survival probabilities at a specified time point (15 weeks) using parametric distributions, based on results for Overall Survival (OS) with Mitoxantrone (Mito). The Parametric Survival equation are provided in the assignment instructions. 
 
-You can use R as your calculator, by simply write the equation you like it to do for you. 
+**It is your task to use these equations with the estimated values in this assignment**
 
-Alternative, you can write a function that help you to perform the calculations. These function make use of the parameters for time, the intercept and the scale of the fitted distribution. You have to give the function the right input parameters to estimate the survival probability at that specific time point. 
+You can use R as your calculator, by writing the equation and you let R do the math. Below an example, of how you can write an equation in R. 
+
+```{r}
+# Example of a basic equation: 
+# four + five to the power of 2 + the exponential of 10
+example_outcome <- 4 + 5^2 + exp(10)
+example_outcome # Print the example outcome
+```
+
+
+Alternative, you can write a function to do the calculations. The benefit of a function, is that you can repeat the calculation many times by just changing the input parameters. 
+
+These function make use of the parameters for time, the intercept and the scale of the fitted distribution. You have to give the function the right input parameters to estimate the survival probability at that specific time point. 
 
 We have given you one example. 
 
@@ -336,10 +348,6 @@ t_weeks <- 15           # number of weeks
 t <- (t_weeks/ 52) * 12 # time in months
 cat(t_weeks, "weeks is the same as", round(t, 3), "months", "\n")
 
-
-t_weeks <- 15           # number of weeks
-t <- (t_weeks/ 52) * 12 # time in months
-cat(t_weeks, "weeks is the same as", round(t, 3), "months", "\n")
 
 ### Exponential ### 
 # Function to calculate survival probability using the Exponential distribution

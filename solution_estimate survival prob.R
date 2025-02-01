@@ -2,7 +2,7 @@
 # https://www.math.arizona.edu/~rsims/ma464/standardnormaltable.pdf
 
 # Extract the results for OS Mito
-l_OS_mito <- l_results_all$`OS mito`
+l_OS_mito <- l_results_all$OS_mito
 
 t_weeks <- 15           # number of weeks
 t <- (t_weeks/ 52) * 12 # time in months
